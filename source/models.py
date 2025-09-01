@@ -46,6 +46,8 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
     
 class Task(models.Model):
     
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
+    
     STATUS_CHOICES = [ 
         ('not_done','Not Done'),
         ('completely','Completely'),
