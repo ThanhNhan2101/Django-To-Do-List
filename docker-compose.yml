@@ -3,33 +3,33 @@ version: "3.9"
 services:
   db:
     image: postgres:15
-    container_name: postgres_db
-    restart: always
     environment:
-      POSTGRES_DB: TodoProject
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1021012003
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"  
 
   web:
     build: .
-    container_name: django_app
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    env_file:
+      - .env
     depends_on:
       - db
-    environment:
-      - DB_NAME=TodoProject
-      - DB_USER=postgres
-      - DB_PASSWORD=1021012003
-      - DB_HOST=db
-      - DB_PORT=5432
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/self-signed:/etc/nginx/certs:ro
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
